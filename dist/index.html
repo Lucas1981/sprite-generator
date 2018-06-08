@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Accordion</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+</head>
+<body>
+
+  <div id="sprite-editor" class="container">
+    <div class="row">
+      <div class="col-sm-6">
+
+        <div>
+          <p>
+            <input type="file" @change="handleFile($event)">
+          </p>
+        </div>
+
+        <div id="source-canvas" class="source-canvas"></div>
+
+        <div class="se-canvas-controls">
+          <p>
+            x: <input type="number" v-model="positionX" />
+            y: <input type="number" v-model="positionY" />
+          </p>
+          <p>
+            unit width: <input type="number" v-model="unitWidth" />
+            unit height: <input type="number" v-model="unitHeight" />
+          </p>
+          <p>
+            step x: <input type="number" v-model="stepX" />
+            step y: <input type="number" v-model="stepY" />
+          </p>
+        </div>
+
+      </div>
+      <div class="col-sm-6">
+        <!-- Here is where the rows with selections are displayed -->
+        <div class="se-selection-controls">
+          <p>
+            <button class="btn btn-primary" @click="addSelection($event)">Add state</button>
+            <button class="btn btn-primary" @click="saveSelections($event)">Save states</button>
+            <button class="btn btn-primary" @click="loadSelectionsProxy($event)">Load states</button>
+            <input type="file" class="d-none" id="load-selections" ref="loadSelection" @change="loadSelections($event)"></button>
+            <button class="btn btn-danger" @click="clearSelections($event)">Clear states</button>
+            <div class="checkbox">
+              <label><input type="checkbox" v-model="trimSelection" /> Trim frames</label>
+            </div>
+          </p>
+        </div>
+        <div class="se-selections">
+          <div v-for="selection in selections" class="card se-card-separator">
+
+            <div class="card-header se-selection-name">
+              <input type="text" v-model="selection.name" />
+              <input type="radio" :value="selection.id" :checked="activeSelection == selection.id" v-model="activeSelection" /> Active
+              Loop type: <select v-model="selection.loopType">
+                <option v-for="option in LoopTypes" :value="option">
+                  {{ option }}
+                </option>
+              </select>
+            </div>
+
+            <div class="card-body">
+              <img
+                class="se-frame"
+                v-for="frame in selection.frames"
+                :width="frame.width"
+                :height="frame.height"
+                :src="getDataURL(frame)"
+                @click="deleteFrame(selection, frame)"
+              />
+            </div>
+
+            <div class="card-footer">
+              <button class="btn btn-sm btn-danger" @click="deleteSelection(selection)">
+                Delete row
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+      </div> <!-- /.col -->
+    </div> <!-- /.row -->
+  </div> <!-- /#sprite-editor -->
+
+  <script src="main.bundle.js"></script>
+
+</body>
+</html>
