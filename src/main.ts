@@ -51,22 +51,33 @@ export default {
       }, 100);
     },
     addSelection(event) {
-      this.selections.push(new Selection(this.selectionIdIndex));
+      this.selections.unshift(new Selection(this.selectionIdIndex));
       this.selectionIdIndex++;
-      this.activeSelection = this.selections.length - 1;
+      this.activeSelection = this.selections[0].id;
       event.target.blur();
     },
     deleteSelection(selection) {
-      for(let i = 0; i < this.selections.length; i++) {
-        if(this.selections[i] == selection) {
-          this.selections.splice(i, 1);
-          break;
+      /* Find index of selection */
+      let selectionIndex = this.selections.indexOf(selection);
+
+      /* Move selected up to the next if we are deleting selected */
+      if(this.activeSelection == selection.id) {
+
+        /* If there is another selection up, move up */
+        if(selectionIndex > 0) {
+          this.activeSelection = this.selections[selectionIndex - 1].id;
+        }
+        /* If not, and there is another selection down, move down */
+        else if(this.selections.length - 1 > selectionIndex){
+          this.activeSelection = this.selections[selectionIndex + 1].id;
+        }
+        /* If there are none up or down and this was the last selection, reset selection */
+        else {
+          this.activeSelection = -1;
         }
       }
 
-      if(this.activeSelection >= this.selections.length) {
-        this.activeSelection--;
-      }
+      this.selections.splice(selectionIndex, 1);
 
     },
     getDataURL(frame) {
@@ -79,7 +90,7 @@ export default {
     },
     loadSelections(event) {
       FileHandler.handleJsonFile(event).then( (result) => {
-        this.clearSelections();
+        this.clearSelections(null);
         for(let i in result) {
           let selection = result[i];
           let frames: Frame[] = [];
@@ -105,10 +116,11 @@ export default {
       this.selections = [];
       this.frameImageSourcesMap.clear();
       this.selectionIdIndex = 0;
-      event.target.blur();
+      if(event !== null) event.target.blur();
     },
     addFrame() {
       let newFrame: Frame = null;
+      let selected = this.selections.find( e => e.id == this.activeSelection )
 
       /* Determine values for the new frame */
 
@@ -125,7 +137,7 @@ export default {
       this.saveHash(newFrame);
 
       /* Commit the selection to our output json */
-      this.selections[this.activeSelection].frames.push( newFrame );
+      selected.frames.push( newFrame );
     },
     deleteFrame(selection, frame) {
       let index = selection.frames.indexOf(frame);

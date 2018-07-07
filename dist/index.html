@@ -52,8 +52,17 @@
           <div v-for="selection in selections" class="card se-card-separator">
 
             <div class="card-header se-selection-name">
-              <input type="text" v-model="selection.name" />
-              <input type="radio" :value="selection.id" :checked="activeSelection == selection.id" v-model="activeSelection" /> Active
+              <input type="text" v-model="selection.name" placeholder="Name" />
+              <label :for="selection.id">
+                <input
+                  type="radio"
+                  :id="selection.id"
+                  :value="selection.id"
+                  :checked="activeSelection == selection.id"
+                  v-model="activeSelection"
+                />
+                Active
+              </label>
               Loop type: <select v-model="selection.loopType">
                 <option v-for="option in LoopTypes" :value="option">
                   {{ option }}
